@@ -13,6 +13,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { HomeComponent } from './components/home/home.component';
 import { SessionCallComponent } from './components/session-call/session-call.component';
+import { SessionListenerComponent } from './components/session-listener/session-listener.component';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 
@@ -21,7 +22,8 @@ import { HttpClientModule } from '@angular/common/http';
   declarations: [
     AppComponent,
     HomeComponent,
-    SessionCallComponent
+    SessionCallComponent,
+    SessionListenerComponent
   ],
   imports: [
     BrowserModule,

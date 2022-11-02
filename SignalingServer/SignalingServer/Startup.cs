@@ -27,6 +27,7 @@ namespace SignalingServer
             {
                 builder.WithOrigins("http://localhost:4200")
                        .SetIsOriginAllowedToAllowWildcardSubdomains()
+                       .AllowCredentials()
                        .AllowAnyMethod()
                        .AllowAnyHeader()
                        .AllowCredentials();

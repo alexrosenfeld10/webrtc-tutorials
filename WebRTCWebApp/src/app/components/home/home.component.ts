@@ -29,7 +29,12 @@ export class HomeComponent implements OnInit {
   }
 
   startSessionCall(): void {
-    this.router.navigate(['session-call/' + this.room]);
+    if(confirm("New Session?")){
+      this.router.navigate(['session-call/' + this.room]);
+    }
+    else{
+      this.router.navigate(['session-listener/' + this.room]);
+    }
   }
 
 }

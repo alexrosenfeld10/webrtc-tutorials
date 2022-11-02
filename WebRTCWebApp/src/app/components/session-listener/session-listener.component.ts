@@ -9,15 +9,15 @@ import { environment } from 'src/environments/environment';
 const useWebrtcUtils = true;
 
 @Component({
-  selector: 'app-session-call',
-  templateUrl: './session-call.component.html',
-  styleUrls: ['./session-call.component.scss']
+  selector: 'app-session-listener',
+  templateUrl: './session-listener.component.html',
+  styleUrls: ['./session-listener.component.scss']
 })
-export class SessionCallComponent implements OnInit, OnDestroy, MessageSender {
+export class SessionListenerComponent implements OnInit, OnDestroy, MessageSender {
 
-  @ViewChild('localVideo') localVideo: ElementRef;
+  @ViewChild('remoteVideo') remoteVideo: ElementRef;
 
-  localStream: MediaStream;
+  remoteStream: MediaStream;
 
   room: string;
   peerConnection: RTCPeerConnection;
@@ -93,39 +93,16 @@ export class SessionCallComponent implements OnInit, OnDestroy, MessageSender {
 
   getUserMedia(): void {
 
-    navigator.mediaDevices.getDisplayMedia(<any>{
-      preferCurrentTab: true,
-      mandatory: {chromeMediaSource: 'screen'},
-      video: {
-        cursor: "always",
-        mediaSource: 'screen'
-      },
-      audio: true
-    })
-      /*navigator.mediaDevices.getUserMedia({
-        audio: true,
-        video: true
-      })
-      */
-    .then((stream: MediaStream) => {
-      this.addLocalStream(stream);
-      this.sendMessage('got user media');
-      if (this.isInitiator) {
-        this.initiateCall();
-      }
-    })
-    .catch((e) => {
-      alert('getUserMedia() error: ' + e.name + ': ' + e.message);
-    });
+    if (this.isInitiator) {
+      this.initiateCall();
+    }
+
   }
 
   initiateCall(): void {
     console.log('Initiating a call.');
-    if (!this.isStarted && this.localStream && this.isChannelReady) {
+    if (!this.isStarted && this.isChannelReady) {
       this.createPeerConnection();
-
-      this.peerConnection.addTrack(this.localStream.getVideoTracks()[0], this.localStream);
-      this.peerConnection.addTrack(this.localStream.getAudioTracks()[0], this.localStream);
 
       this.isStarted = true;
       if (this.isInitiator) {
@@ -155,9 +132,10 @@ export class SessionCallComponent implements OnInit, OnDestroy, MessageSender {
       };
 
       this.peerConnection.ontrack = (event: RTCTrackEvent) => {
-        //if (event.streams[0]) {
-        //  this.addRemoteStream(event.streams[0]);
-        //}
+        console.log('this.peerConnection.ontrack');
+        if (event.streams[0]) {
+          this.addRemoteStream(event.streams[0]);
+        }
       };
 
       if (useWebrtcUtils) {
@@ -234,13 +212,12 @@ export class SessionCallComponent implements OnInit, OnDestroy, MessageSender {
     this.peerConnection.addTransceiver('video', init);
   }
 
-  addLocalStream(stream: MediaStream): void {
-    console.log('Local stream added.');
-    this.localStream = stream;
-    this.localVideo.nativeElement.srcObject = this.localStream;
-    this.localVideo.nativeElement.muted = 'muted';
+  addRemoteStream(stream: MediaStream): void {
+    console.log('Remote stream added.');
+    this.remoteStream = stream;
+    this.remoteVideo.nativeElement.srcObject = this.remoteStream;
+    this.remoteVideo.nativeElement.muted = 'muted';
   }
-
 
   hangup(): void {
     console.log('Hanging up.');
@@ -270,11 +247,8 @@ export class SessionCallComponent implements OnInit, OnDestroy, MessageSender {
 
   ngOnDestroy(): void {
     this.hangup();
-    if (this.localStream && this.localStream.active) {
-      this.localStream.getTracks().forEach((track) => { track.stop(); });
+    if (this.remoteStream && this.remoteStream.active) {
+      this.remoteStream.getTracks().forEach((track) => { track.stop(); });
     }
-    //if (this.remoteStream && this.remoteStream.active) {
-    //  this.remoteStream.getTracks().forEach((track) => { track.stop(); });
-    //}
   }
 }
